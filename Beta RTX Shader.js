@@ -35,7 +35,7 @@
                 scene.postProcessStages.bloom.enabled = true;
                 // Higher brightnessFilter means only the sun and white paint glow, not the grass.
                 scene.postProcessStages.bloom.uniforms.brightnessFilter = 0.7; 
-                scene.postProcessStages.bloom.uniforms.contrast = 1.1;
+                scene.postProcessStages.bloom.uniforms.contrast = 0.5;
             }
 
             // --- AIRCRAFT SPECIFIC RENDERING ---
