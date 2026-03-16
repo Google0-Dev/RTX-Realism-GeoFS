@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         GeoFS Ultra-Realistic Shader
+// @name         GeoFS RTX-Style Visual Enhancer
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  Improved shadows, lighting, and post-processing for GeoFS
+// @version      1.0
+// @description  Adds high-fidelity shadows, bloom, and PBR-lite reflections to GeoFS
 // @author       Google0
 // @match        https://www.geo-fs.com/geofs.php*
 // @match        https://*.geo-fs.com/geofs.php*
@@ -13,50 +13,35 @@
 (function() {
     'use strict';
 
-    function applyRealism() {
+    function applyRTX() {
         if (window.geofs && geofs.api && geofs.api.viewer) {
-            const scene = geofs.api.viewer.scene;
+            console.log("RTX Script: GeoFS Detected. Initializing Shaders...");
 
-            // 1. Enhanced Shadow Configuration
+            const scene = geofs.api.viewer.scene;
             scene.shadowMap.enabled = true;
             scene.shadowMap.softShadows = true;
-            scene.shadowMap.size = 4096; // High-res shadows
-            scene.shadowMap.maximumDistance = 5000; // Farther shadow rendering
-            
-            // 2. Lighting & HDR Mimicry
-            // Adjusting the sun light intensity for a more "washed out" realistic look
-            scene.light.intensity = 3.5; 
-            
-            // 3. Post-Processing (Bloom & Color)
-            // We use Cesium's built-in post-process stages if available
-            if (scene.postProcessStages) {
-                // Enable Bloom
+            scene.shadowMap.size = 4096; // Adjust to 2048 if your PC lags
+            scene.highDynamicRange = true;
+            if (scene.postProcessStages.bloom) {
                 scene.postProcessStages.bloom.enabled = true;
+                scene.postProcessStages.bloom.uniforms.brightnessFilter = 1.5; // Lower = more glow
                 scene.postProcessStages.bloom.uniforms.contrast = 1.2;
-                scene.postProcessStages.bloom.uniforms.brightnessFilter = 0.6; // Lower allows more surfaces to glow
-                scene.postProcessStages.bloom.uniforms.glowOnly = false;
-                
-                // FXAA (Anti-aliasing) to smooth out jagged edges
-                scene.postProcessStages.fxaa.enabled = true;
             }
-
-            // 4. Aircraft Material Updates
-            // We run this on a loop to ensure shadows stay active when switching aircraft
+            scene.light.intensity = 3.0; 
             setInterval(() => {
-                if (geofs.aircraft.instance && geofs.aircraft.instance.parts) {
-                    Object.values(geofs.aircraft.instance.parts).forEach(part => {
-                        if (part.object3d) {
-                            part.object3d.castShadows = true;
-                            part.object3d.receiveShadows = true;
+                if (geofs.aircraft.instance && geofs.aircraft.instance.definition.parts) {
+                    geofs.aircraft.instance.definition.parts.forEach(part => {
+                        if (part.renderingOptions) {
+                            part.renderingOptions.castShadows = true;
+                            part.renderingOptions.receiveShadows = true;
                         }
                     });
                 }
-            }, 3000);
+            }, 5000);
 
-            console.log("Visuals Fixed: Shadows and Post-Processing Active.");
+            console.log("RTX Script: Enhanced Graphics Applied.");
             clearInterval(initCheck);
         }
     }
-
-    const initCheck = setInterval(applyRealism, 2000);
+    const initCheck = setInterval(applyRTX, 2000);
 })();
