@@ -2,7 +2,7 @@
 // @name         GeoFS A320 Universal Ultra-Shine
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Adds metallic reflections and high-gloss finish to any A320 model
+// @description  Adds metallic reflections and high-gloss finish
 // @author       Google0
 // @match        https://www.geo-fs.com/geofs.php*
 // @match        https://*.geo-fs.com/geofs.php*
@@ -15,36 +15,34 @@
     function applyVisualOverhaul() {
         const ac = geofs.aircraft.instance;
 
-        // Targets any aircraft with "A320" in the name (Official or Community)
+        // Verify aircraft and setup exist before running
         if (ac && ac.setup && ac.setup.name && ac.setup.name.includes("A320")) {
             
             // --- VISUAL SHINE & REFLECTIONS ---
-            if (ac.model && ac.model._model) {
+            if (ac.model && ac.model._model && ac.model._model._runtime) {
                 const meshes = ac.model._model._runtime.meshes;
-                meshes.forEach(mesh => {
-                    mesh.primitives.forEach(primitive => {
-                        const material = primitive.material;
-                        if (material && material.pbrMetallicRoughness) {
-                            // High Gloss (0.1 is very shiny, 0.2 is factory fresh)
-                            material.pbrMetallicRoughness.roughnessFactor = 0.12;
-                            // Metallic reflection (0.6 makes it reflect the sky beautifully)
-                            material.pbrMetallicRoughness.metallicFactor = 0.6;
-                            
-                            // Subtle ambient light boost for depth
-                            material.emissiveFactor = [0.03, 0.03, 0.03]; 
-                        }
+                if (meshes) {
+                    meshes.forEach(mesh => {
+                        mesh.primitives.forEach(primitive => {
+                            const material = primitive.material;
+                            // Check if PBR properties exist for this specific mesh part
+                            if (material && material.pbrMetallicRoughness) {
+                                material.pbrMetallicRoughness.roughnessFactor = 0.12;
+                                material.pbrMetallicRoughness.metallicFactor = 0.6;
+                                material.emissiveFactor = [0.03, 0.03, 0.03]; 
+                            }
+                        });
                     });
-                });
+                }
             }
             
             // --- LIGHTING ENHANCEMENT ---
-            // High-intensity strobes for realism
             if (geofs.fx && geofs.fx.light && geofs.fx.light.strobe) {
                 geofs.fx.light.strobe.color = [1, 1, 1, 1.5];
             }
         }
     }
 
-    // Runs every 3 seconds to apply to new aircraft or after a crash
+    // Run every 3 seconds
     setInterval(applyVisualOverhaul, 3000);
 })();
