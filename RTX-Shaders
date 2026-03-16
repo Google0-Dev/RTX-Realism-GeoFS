@@ -1,1 +1,62 @@
+// ==UserScript==
+// @name         GeoFS Ultra-Realistic Shader
+// @namespace    http://tampermonkey.net/
+// @version      1.1
+// @description  Improved shadows, lighting, and post-processing for GeoFS
+// @author       Google0
+// @match        https://www.geo-fs.com/geofs.php*
+// @match        https://*.geo-fs.com/geofs.php*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
 
+(function() {
+    'use strict';
+
+    function applyRealism() {
+        if (window.geofs && geofs.api && geofs.api.viewer) {
+            const scene = geofs.api.viewer.scene;
+
+            // 1. Enhanced Shadow Configuration
+            scene.shadowMap.enabled = true;
+            scene.shadowMap.softShadows = true;
+            scene.shadowMap.size = 4096; // High-res shadows
+            scene.shadowMap.maximumDistance = 5000; // Farther shadow rendering
+            
+            // 2. Lighting & HDR Mimicry
+            // Adjusting the sun light intensity for a more "washed out" realistic look
+            scene.light.intensity = 3.5; 
+            
+            // 3. Post-Processing (Bloom & Color)
+            // We use Cesium's built-in post-process stages if available
+            if (scene.postProcessStages) {
+                // Enable Bloom
+                scene.postProcessStages.bloom.enabled = true;
+                scene.postProcessStages.bloom.uniforms.contrast = 1.2;
+                scene.postProcessStages.bloom.uniforms.brightnessFilter = 0.6; // Lower allows more surfaces to glow
+                scene.postProcessStages.bloom.uniforms.glowOnly = false;
+                
+                // FXAA (Anti-aliasing) to smooth out jagged edges
+                scene.postProcessStages.fxaa.enabled = true;
+            }
+
+            // 4. Aircraft Material Updates
+            // We run this on a loop to ensure shadows stay active when switching aircraft
+            setInterval(() => {
+                if (geofs.aircraft.instance && geofs.aircraft.instance.parts) {
+                    Object.values(geofs.aircraft.instance.parts).forEach(part => {
+                        if (part.object3d) {
+                            part.object3d.castShadows = true;
+                            part.object3d.receiveShadows = true;
+                        }
+                    });
+                }
+            }, 3000);
+
+            console.log("Visuals Fixed: Shadows and Post-Processing Active.");
+            clearInterval(initCheck);
+        }
+    }
+
+    const initCheck = setInterval(applyRealism, 2000);
+})();
