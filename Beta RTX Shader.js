@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         GeoFS RTX-Style Visual Enhancer
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.0
 // @description  Adds high-fidelity shadows, bloom, and PBR-lite reflections to GeoFS
-// @author       Gemini
+// @author       Google0
 // @match        https://www.geo-fs.com/geofs.php*
 // @match        https://*.geo-fs.com/geofs.php*
 // @grant        none
