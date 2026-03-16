@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         GeoFS A320neo Ultra-Shine & Realism
+// @name         GeoFS A320 Universal Ultra-Shine
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Adds metallic reflections, high-gloss fuselage, and physics fixes to the A320neo
+// @description  Adds metallic reflections and high-gloss finish to any A320 model
 // @author       Google0
 // @match        https://www.geo-fs.com/geofs.php*
 // @match        https://*.geo-fs.com/geofs.php*
@@ -13,44 +13,38 @@
     'use strict';
 
     function applyVisualOverhaul() {
-        // Only target the A320neo (ID: 2871)
-        if (geofs.aircraft.instance && geofs.aircraft.instance.id === "2871") {
-            const a320 = geofs.aircraft.instance;
+        const ac = geofs.aircraft.instance;
 
-            // --- 1. VISUAL SHINE & REFLECTIONS ---
-            // We iterate through the model parts to apply a "Metallic" finish
-            if (a320.model && a320.model._model) {
-                const meshes = a320.model._model._runtime.meshes;
+        // Targets any aircraft with "A320" in the name (Official or Community)
+        if (ac && ac.setup && ac.setup.name && ac.setup.name.includes("A320")) {
+            
+            // --- VISUAL SHINE & REFLECTIONS ---
+            if (ac.model && ac.model._model) {
+                const meshes = ac.model._model._runtime.meshes;
                 meshes.forEach(mesh => {
                     mesh.primitives.forEach(primitive => {
                         const material = primitive.material;
-                        if (material) {
-                            // Lower roughness = Shinier surface (0.1 is like glass/polished metal)
-                            material.pbrMetallicRoughness.roughnessFactor = 0.15;
-                            // Higher metallic = More sky reflections
-                            material.pbrMetallicRoughness.metallicFactor = 0.5;
+                        if (material && material.pbrMetallicRoughness) {
+                            // High Gloss (0.1 is very shiny, 0.2 is factory fresh)
+                            material.pbrMetallicRoughness.roughnessFactor = 0.12;
+                            // Metallic reflection (0.6 makes it reflect the sky beautifully)
+                            material.pbrMetallicRoughness.metallicFactor = 0.6;
                             
-                            // Adjusting the base color to react better to sunlight
-                            material.emissiveFactor = [0.05, 0.05, 0.05]; 
+                            // Subtle ambient light boost for depth
+                            material.emissiveFactor = [0.03, 0.03, 0.03]; 
                         }
                     });
                 });
             }
-
-            // --- 2. ENGINE & PHYSICS TWEAKS ---
-            a320.setup.aerodynamics.pitchStability = 0.95;
-            a320.setup.engines.forEach(eng => {
-                eng.thrust = 120600; 
-            });
-
-            // --- 3. LIGHTING ENHANCEMENT ---
-            // Makes the strobes "pop" more against the shiny fuselage
-            geofs.fx.light.strobe.color = [1, 1, 1, 1.5];
             
-            console.log("A320neo Visual & Physics Overhaul Active");
+            // --- LIGHTING ENHANCEMENT ---
+            // High-intensity strobes for realism
+            if (geofs.fx && geofs.fx.light && geofs.fx.light.strobe) {
+                geofs.fx.light.strobe.color = [1, 1, 1, 1.5];
+            }
         }
     }
 
-    // Run every 3 seconds to catch the model after it fully loads in
+    // Runs every 3 seconds to apply to new aircraft or after a crash
     setInterval(applyVisualOverhaul, 3000);
 })();
