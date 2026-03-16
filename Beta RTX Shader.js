@@ -28,7 +28,7 @@
             // --- LIGHTING FIX (The "Purple Floor" Fix) ---
             // Dropping intensity from 3.0 to 1.2 prevents the HDR buffer from overflowing into magenta.
             scene.highDynamicRange = true;
-            scene.light.intensity = 1.2; 
+            scene.light.intensity = 0.5; 
 
             // --- BLOOM TUNING ---
             if (scene.postProcessStages.bloom) {
