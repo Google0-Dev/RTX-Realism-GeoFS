@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GeoFS RTX-Style Visual Enhancer
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Adds high-fidelity shadows, bloom, and PBR-lite reflections to GeoFS
 // @author       Google0
 // @match        https://www.geo-fs.com/geofs.php*
@@ -20,11 +20,11 @@
             const scene = geofs.api.viewer.scene;
             scene.shadowMap.enabled = true;
             scene.shadowMap.softShadows = true;
-            scene.shadowMap.size = 4096; // Adjust to 2048 if your PC lags
+            scene.shadowMap.size = 2048; // Adjust to 2048 if your PC lags
             scene.highDynamicRange = true;
             if (scene.postProcessStages.bloom) {
                 scene.postProcessStages.bloom.enabled = true;
-                scene.postProcessStages.bloom.uniforms.brightnessFilter = 1.5; // Lower = more glow
+                scene.postProcessStages.bloom.uniforms.brightnessFilter = 2; // Lower = more glow
                 scene.postProcessStages.bloom.uniforms.contrast = 1.2;
             }
             scene.light.intensity = 3.0; 
