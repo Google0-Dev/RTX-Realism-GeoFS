@@ -1,41 +1,48 @@
 // ==UserScript==
-// @name         GeoFS Universal Aircraft Shine
+// @name         GeoFS A320neo Realism Pro
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Adds a metallic/glossy reflection to all aircraft
+// @description  Enhances physics, FBW feel, and engine thrust for the A320neo
 // @author       Google0
 // @match        https://www.geo-fs.com/geofs.php*
+// @match        https://*.geo-fs.com/geofs.php*
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    function applyGloss() {
-        if (window.geofs && geofs.aircraft.instance && geofs.aircraft.instance.definition) {
-            let parts = geofs.aircraft.instance.definition.parts;
-            
-            parts.forEach(part => {
-                if (part.material) {
-                    // Increase reflectivity (Specular)
-                    part.material.specular = [1.5, 1.5, 1.5]; 
-                    // Make the surface smoother for sharper "glints"
-                    part.material.shininess = 120; 
+    function applyA320Fixes() {
+        // Check if aircraft is loaded and is the A320neo (ID: 2180)
+        if (geofs.aircraft.instance && geofs.aircraft.instance.id === "2180") {
+            const a320 = geofs.aircraft.instance;
+
+            // --- FLIGHT CONTROL LAWS (Fly-By-Wire feel) ---
+            // High stability values simulate the computer-assisted trimming
+            a320.setup.aerodynamics.pitchStability = 0.9;
+            a320.setup.aerodynamics.rollStability = 0.7;
+            a320.setup.dragCoefficient = 0.022; // Slightly more drag for realistic descent profiles
+
+            // --- CFM LEAP-1A ENGINE PHYSICS ---
+            // Realistic thrust-to-weight ratio adjustments
+            a320.setup.engines.forEach(eng => {
+                eng.thrust = 120600; // Newtons
+                eng.reverseThrust = 0.2; // A320s only use reverse thrust on the inner portion
+            });
+
+            // --- GROUND HANDLING ---
+            // Improving suspension to prevent "bouncing" on landing
+            a320.setup.parts.forEach(part => {
+                if (part.name === "gear") {
+                    part.suspensionWeight = 50;
+                    part.suspensionDamping = 10;
                 }
             });
+
+            console.log("A320neo Realism Pro: Systems Active");
         }
     }
 
-    // Run every 3 seconds to catch aircraft swaps or parts loading
-    setInterval(applyGloss, 3000);
-
-    // Add a CSS filter to the game canvas for that high-contrast "edited" look
-    const style = document.createElement('style');
-    style.innerHTML = `
-        #geofs-canvas-container canvas {
-            filter: contrast(1.1) saturate(1.3) brightness(1.05);
-        }
-    `;
-    document.head.appendChild(style);
-
+    // Run the check every 5 seconds to ensure it reapplies if you swap planes
+    setInterval(applyA320Fixes, 5000);
 })();
