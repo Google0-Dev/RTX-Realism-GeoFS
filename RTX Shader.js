@@ -24,7 +24,7 @@
             scene.highDynamicRange = true;
             if (scene.postProcessStages.bloom) {
                 scene.postProcessStages.bloom.enabled = true;
-                scene.postProcessStages.bloom.uniforms.brightnessFilter = 1; // Lower = more glow
+                scene.postProcessStages.bloom.uniforms.brightnessFilter = 1.5; // Lower = more glow
                 scene.postProcessStages.bloom.uniforms.contrast = 1.2;
             }
             scene.light.intensity = 3.0; 
