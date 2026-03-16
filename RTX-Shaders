@@ -1,48 +1,42 @@
 // ==UserScript==
-// @name         GeoFS A320 Universal Ultra-Shine
-// @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  Adds metallic reflections and high-gloss finish
-// @author       Google0
+// @name         GeoFS A320 Clean Realism
 // @match        https://www.geo-fs.com/geofs.php*
-// @match        https://*.geo-fs.com/geofs.php*
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    function applyVisualOverhaul() {
+    function applyCleanLook() {
         const ac = geofs.aircraft.instance;
 
-        // Verify aircraft and setup exist before running
+        // Check if we are in an A320
         if (ac && ac.setup && ac.setup.name && ac.setup.name.includes("A320")) {
             
-            // --- VISUAL SHINE & REFLECTIONS ---
+            // 1. FIX THE TEXTURE LIGHTING
+            // This prevents the plane from looking 'flat' by adjusting the light gain
+            if (geofs.api && geofs.api.viewer) {
+                geofs.api.viewer.scene.globe.maximumScreenSpaceError = 2; // Sharpens ground textures
+                geofs.api.viewer.scene.light.intensity = 3.5; // Brighter, cleaner sunlight
+            }
+
+            // 2. ENHANCE THE MODEL APPEARANCE
+            // We use a safer way to access the model to avoid the 'undefined' error
             if (ac.model && ac.model._model && ac.model._model._runtime) {
                 const meshes = ac.model._model._runtime.meshes;
-                if (meshes) {
-                    meshes.forEach(mesh => {
-                        mesh.primitives.forEach(primitive => {
-                            const material = primitive.material;
-                            // Check if PBR properties exist for this specific mesh part
-                            if (material && material.pbrMetallicRoughness) {
-                                material.pbrMetallicRoughness.roughnessFactor = 0.12;
-                                material.pbrMetallicRoughness.metallicFactor = 0.6;
-                                material.emissiveFactor = [0.03, 0.03, 0.03]; 
-                            }
-                        });
+                meshes.forEach(mesh => {
+                    mesh.primitives.forEach(prim => {
+                        if (prim.material && prim.material.pbrMetallicRoughness) {
+                            // Subtle shine, not 'chrome' but 'clean'
+                            prim.material.pbrMetallicRoughness.roughnessFactor = 0.25;
+                            prim.material.pbrMetallicRoughness.metallicFactor = 0.3;
+                        }
                     });
-                }
-            }
-            
-            // --- LIGHTING ENHANCEMENT ---
-            if (geofs.fx && geofs.fx.light && geofs.fx.light.strobe) {
-                geofs.fx.light.strobe.color = [1, 1, 1, 1.5];
+                });
             }
         }
     }
 
-    // Run every 3 seconds
-    setInterval(applyVisualOverhaul, 3000);
+    // Run once every 5 seconds to stay stable
+    setInterval(applyCleanLook, 5000);
 })();
