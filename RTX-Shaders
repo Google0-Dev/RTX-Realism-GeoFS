@@ -1,0 +1,41 @@
+// ==UserScript==
+// @name         GeoFS Universal Aircraft Shine
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Adds a metallic/glossy reflection to all aircraft
+// @author       Google0
+// @match        https://www.geo-fs.com/geofs.php*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    function applyGloss() {
+        if (window.geofs && geofs.aircraft.instance && geofs.aircraft.instance.definition) {
+            let parts = geofs.aircraft.instance.definition.parts;
+            
+            parts.forEach(part => {
+                if (part.material) {
+                    // Increase reflectivity (Specular)
+                    part.material.specular = [1.5, 1.5, 1.5]; 
+                    // Make the surface smoother for sharper "glints"
+                    part.material.shininess = 120; 
+                }
+            });
+        }
+    }
+
+    // Run every 3 seconds to catch aircraft swaps or parts loading
+    setInterval(applyGloss, 3000);
+
+    // Add a CSS filter to the game canvas for that high-contrast "edited" look
+    const style = document.createElement('style');
+    style.innerHTML = `
+        #geofs-canvas-container canvas {
+            filter: contrast(1.1) saturate(1.3) brightness(1.05);
+        }
+    `;
+    document.head.appendChild(style);
+
+})();
