@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         GeoFS A320neo Realism Pro
+// @name         GeoFS A320neo Ultra-Shine & Realism
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Enhances physics, FBW feel, and engine thrust for the A320neo
+// @description  Adds metallic reflections, high-gloss fuselage, and physics fixes to the A320neo
 // @author       Google0
 // @match        https://www.geo-fs.com/geofs.php*
 // @match        https://*.geo-fs.com/geofs.php*
@@ -12,37 +12,45 @@
 (function() {
     'use strict';
 
-    function applyA320Fixes() {
-        // Check if aircraft is loaded and is the A320neo (ID: 2180)
+    function applyVisualOverhaul() {
+        // Only target the A320neo (ID: 2180)
         if (geofs.aircraft.instance && geofs.aircraft.instance.id === "2180") {
             const a320 = geofs.aircraft.instance;
 
-            // --- FLIGHT CONTROL LAWS (Fly-By-Wire feel) ---
-            // High stability values simulate the computer-assisted trimming
-            a320.setup.aerodynamics.pitchStability = 0.9;
-            a320.setup.aerodynamics.rollStability = 0.7;
-            a320.setup.dragCoefficient = 0.022; // Slightly more drag for realistic descent profiles
+            // --- 1. VISUAL SHINE & REFLECTIONS ---
+            // We iterate through the model parts to apply a "Metallic" finish
+            if (a320.model && a320.model._model) {
+                const meshes = a320.model._model._runtime.meshes;
+                meshes.forEach(mesh => {
+                    mesh.primitives.forEach(primitive => {
+                        const material = primitive.material;
+                        if (material) {
+                            // Lower roughness = Shinier surface (0.1 is like glass/polished metal)
+                            material.pbrMetallicRoughness.roughnessFactor = 0.15;
+                            // Higher metallic = More sky reflections
+                            material.pbrMetallicRoughness.metallicFactor = 0.5;
+                            
+                            // Adjusting the base color to react better to sunlight
+                            material.emissiveFactor = [0.05, 0.05, 0.05]; 
+                        }
+                    });
+                });
+            }
 
-            // --- CFM LEAP-1A ENGINE PHYSICS ---
-            // Realistic thrust-to-weight ratio adjustments
+            // --- 2. ENGINE & PHYSICS TWEAKS ---
+            a320.setup.aerodynamics.pitchStability = 0.95;
             a320.setup.engines.forEach(eng => {
-                eng.thrust = 120600; // Newtons
-                eng.reverseThrust = 0.2; // A320s only use reverse thrust on the inner portion
+                eng.thrust = 120600; 
             });
 
-            // --- GROUND HANDLING ---
-            // Improving suspension to prevent "bouncing" on landing
-            a320.setup.parts.forEach(part => {
-                if (part.name === "gear") {
-                    part.suspensionWeight = 50;
-                    part.suspensionDamping = 10;
-                }
-            });
-
-            console.log("A320neo Realism Pro: Systems Active");
+            // --- 3. LIGHTING ENHANCEMENT ---
+            // Makes the strobes "pop" more against the shiny fuselage
+            geofs.fx.light.strobe.color = [1, 1, 1, 1.5];
+            
+            console.log("A320neo Visual & Physics Overhaul Active");
         }
     }
 
-    // Run the check every 5 seconds to ensure it reapplies if you swap planes
-    setInterval(applyA320Fixes, 5000);
+    // Run every 3 seconds to catch the model after it fully loads in
+    setInterval(applyVisualOverhaul, 3000);
 })();
