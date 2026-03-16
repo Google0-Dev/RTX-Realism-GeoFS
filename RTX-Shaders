@@ -13,8 +13,8 @@
     'use strict';
 
     function applyVisualOverhaul() {
-        // Only target the A320neo (ID: 2180)
-        if (geofs.aircraft.instance && geofs.aircraft.instance.id === "2180") {
+        // Only target the A320neo (ID: 2871)
+        if (geofs.aircraft.instance && geofs.aircraft.instance.id === "2871") {
             const a320 = geofs.aircraft.instance;
 
             // --- 1. VISUAL SHINE & REFLECTIONS ---
