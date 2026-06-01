@@ -1,2 +1,28 @@
 # RTX-Shaders
-RTX style shader pack makes your Aircraft look as realstick as possible.
+Elevate your GeoFS flight experience with my RTX-style shader pack, designed for ultimate realism. This comprehensive upgrade optimizes environmental atmospheric effects like shadows and fog, while delivering precise physics simulation for turbulence, inertia, and ground effect and more.
+
+Method 1: Tampermonkey (Recommended)
+
+(Ensure the extension has all necessary permissions and is enabled.)
+
+This method only needs to be set up once. After that, the add-on will load automatically.
+
+Open the Tampermonkey Dashboard and click the tab with the plus (+) sign.
+
+Clear any existing code in the editor and paste the RTX-Shaders.js code.
+
+Click on File, then select Save.
+
+Method 2: JavaScript Console Note: This method requires you to manually paste the code into the console every time you launch GeoFS.
+
+Open the Inspect Panel in your browser by pressing F12, or by right-clicking anywhere on the webpage and selecting Inspect (or Inspect Element).
+
+Navigate to the Console tab and paste the RTX-Shaders.js code. (You may be prompted to type "allow pasting" into the console before you can paste the code).
+
+Here are few examples !
+
+Stock Image
+<img width="1919" height="1033" alt="GeoFS 4 0 Stock" src="https://github.com/user-attachments/assets/35ba4c95-3769-44db-b7c7-80db4157e77c" />
+
+With RTX-Shaders Pack
+<img width="1918" height="1034" alt="GeoFS 4 0 RTX Realism on" src="https://github.com/user-attachments/assets/b8f6b2f9-c568-4c6d-bd4c-42df09f2a0f3" />
