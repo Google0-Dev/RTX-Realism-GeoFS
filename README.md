@@ -1,4 +1,4 @@
-# RTX-Realism
+# RTX-Realism-For-GeoFS-4.0
 Elevate your GeoFS flight experience with my RTX-style shader pack, designed for ultimate realism. This comprehensive upgrade optimizes environmental atmospheric effects like shadows and fog, while delivering precise physics simulation for turbulence, inertia, and ground effect and more.
 
 Method 1: Tampermonkey (Recommended)
