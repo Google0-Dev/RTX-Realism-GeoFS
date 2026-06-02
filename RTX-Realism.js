@@ -3,10 +3,13 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Enhanced shadows, turbulence, inertia, fog, ground effect, and camera realism for GeoFS 4.0
+// @author       Google0
 // @match        https://beta.geo-fs.com/*
 // @match        https://www.geo-fs.com/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=geo-fs.com
 // @grant        none
 // @run-at       document-idle
+// @license      MIT
 // ==/UserScript==
 
 (() => {
