@@ -3,11 +3,15 @@
 </p>
 <p align="center">
 Elevate your GeoFS Flight experience with my RTX-Style Realism Pack, designed for Ultimate Realism and Physics
+
+> [!Note]
+> GeoFS 4.0 is Still in Public Beta Phase and Not Very Stable
+
 </p>
 
-# ⬇️ Upcoming Features
-Fully Staiblize the code
+# ⬇️ Upcoming Features !
 
+Fully Staiblize the code and Fixtures in Camera
 
 ## ✅ What does this add-on include ?
 
@@ -53,3 +57,11 @@ Navigate to the Console tab and paste the RTX-Realism.js code.
 <img width="1919" height="1034" alt="GeoFS 4 0 RTX Realism on 3" src="https://github.com/user-attachments/assets/74f93566-cdfe-479f-a9c3-1076b76c1b8f" />
 
 ## ❌ Bugs and Issues !
+
+Camera Issues in Chase Cam and Free Cam
+
+Shadows Smoothness
+
+## Feedback !
+
+### Please fill out [this anonymous survey](https://forms.gle/6UP3UZbszLB21jBUA) to improve my Add-ons and to give me more ideas Thanks !
