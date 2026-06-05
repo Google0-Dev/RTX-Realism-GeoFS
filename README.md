@@ -17,6 +17,16 @@ Fully Staiblize the code and Fixtures in Camera
 
 The Add-on delivers a profoundly immersive experience by integrating advanced visual fidelity—featuring soft, extended-distance shadows, atmospheric fog, and automated day/night color and contrast grading—with dynamic physics simulations including 3-axis procedural turbulence, simulated wing flex, ground effect lift, and responsive cockpit camera shake.
 
+## ⚠️ Configuration
+
+shadows: { enabled: true,                               
+           size: 2048,
+           softShadows: true,
+           darkness: 0.45,
+           maximumDistance: 20000 },
+           
+You could always change these settings For Better Experience.           
+
 ## How to Install This Add-on ?
 ### Method 1: Tampermonkey (Recommended)
 
