@@ -5,7 +5,7 @@
 Elevate your GeoFS Flight experience with my RTX-Style Realism Pack, designed for Ultimate Realism and Physics
 
 > [!Note]
-> GeoFS 4.0 is Still in Public Beta Phase and Not Very Stable
+> GeoFS 4.0 is Still in Public Beta Phase and is Not Very Stable
 
 </p>
 
