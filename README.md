@@ -15,7 +15,7 @@ Fully Staiblize the code and Fixtures in Camera Modes
 
 ## ✅ What does this add-on include ?
 
-The Add-on delivers a profoundly immersive experience by integrating advanced visual fidelity—featuring soft, extended-distance shadows, atmospheric fog, and automated day/night color and contrast grading—with dynamic physics simulations including 3-axis procedural turbulence, simulated wing flex, ground effect lift, and responsive cockpit camera shake.
+This Add-on delivers a profoundly immersive experience by integrating advanced visual fidelity—featuring soft, extended-distance shadows, atmospheric fog, and automated day/night color and contrast grading—with dynamic physics simulations including 3-axis procedural turbulence, simulated wing flex, ground effect lift, and responsive cockpit camera shake.
 
 ## ⚠️ Configuration
 
