@@ -11,7 +11,8 @@ Elevate your GeoFS Flight experience with my RTX-Style Realism Pack, designed fo
 
 # ⬇️ Upcoming Features !
 
-Fully Staiblize the code and Fixtures in Camera Modes
+Fully Staiblizing the code and Fixtures in Camera Modes
+Ultra Smooth Shadows
 
 ## ✅ What does this add-on include ?
 
