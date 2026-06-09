@@ -24,7 +24,7 @@
             size: 2048,
             softShadows: true,
             darkness: 0.45,
-            maximumDistance: 20000
+            maximumDistance: 15000
         },
 
         physics: {
