@@ -24,7 +24,7 @@ shadows: { enabled: true,
            size: 2048,
            softShadows: true,
            darkness: 0.45,
-           maximumDistance: 20000 },
+           maximumDistance: 15000 },
            
 You could always change these settings For Better Experience.           
 
