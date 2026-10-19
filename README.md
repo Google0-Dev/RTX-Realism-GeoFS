@@ -20,12 +20,8 @@ This Add-on delivers a profoundly immersive experience by integrating advanced v
 
 ## ⚠️ Configuration
 
-shadows: { enabled: true,                               
-           size: 2048,
-           softShadows: true,
-           darkness: 0.45, Higher The number Less Darker
-           maximumDistance: 15000 }, Higher the number Slower but More Distance
-           
+size: 4096, // 2048 is highly optimized; 4096 causes VRAM lag on many GPUs
+
 You could always change these settings For Better Experience.           
 
 ## How to Install This Add-on ?
