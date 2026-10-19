@@ -73,9 +73,9 @@ Navigate to the Console tab and paste the RTX-Realism.js code.
 
 ## ❌ Bugs and Issues !
 
-Camera Issues in Chase Cam and Free Cam
+~~Camera Issues in Chase Cam and Free Cam~~
 
-Shadows Smoothness
+-Cloud Shadows Smoothness and Ridges  
 
 ## Feedback !
 
