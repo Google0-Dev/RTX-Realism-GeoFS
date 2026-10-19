@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         GeoFS 4K Realism & Physics Pack
 // @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  Enhanced shadows, turbulence, inertia, fog, ground effect, and camera realism for GeoFS 4.0
-// @author       Google0
+// @version      3.0
+// @description  Zero-drift camera physics, optimized lag-free visuals, and stable turbulence.
+// @author       Google0 (Refactored)
 // @match        https://beta.geo-fs.com/*
 // @match        https://www.geo-fs.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=geo-fs.com
@@ -16,586 +16,176 @@
     "use strict";
 
     const CONFIG = {
-
-        visualsInterval: 250,
+        visualsInterval: 500,
 
         shadows: {
             enabled: true,
-            size: 2048,
+            size: 4096, // 2048 is highly optimized; 4096 causes VRAM lag on many GPUs
             softShadows: true,
-            darkness: 0.45,
-            maximumDistance: 15000
+            darkness: 0.60
         },
 
         physics: {
-            inertiaSmoothing: 0.95,
-            baseTurbulence: 0.00012,
-            groundEffectHeight: 80,
-            groundEffectLift: 0.00025,
-            maxShake: 0.0008
+            baseTurbulence: 0.00005,
+            groundEffectHeight: 15,
+            groundEffectLift: 0.0003,
+            maxShake: 0.002 
         },
 
         visuals: {
-
-            transitionSpeed: 0.01,
-
-            day: {
-                contrast: 1.20,
-                brightness: 1.03,
-                saturate: 1.08
-            },
-
-            night: {
-                contrast: 1.15,
-                brightness: 0.92,
-                saturate: 0.95
-            }
+            day: { contrast: 1.12, brightness: 1.02, saturate: 1.10 },
+            night: { contrast: 1.20, brightness: 0.90, saturate: 0.80 }
         }
     };
 
-     const State = {
-
+    const State = {
         initialized: false,
-
         isNight: false,
-
-        styleElement: null,
-
         lastFilter: "",
-
-        shakeX: 0,
-        shakeY: 0,
-
-        targetShakeX: 0,
-        targetShakeY: 0,
-
-        lastFrame: performance.now(),
-
         lastVisualUpdate: 0,
-
+        lastTime: performance.now(),
         gust: 0,
+        currentVisuals: { contrast: 1, brightness: 1, saturate: 1 },
 
-        fx: {
-            contrast: 1,
-            brightness: 1,
-            saturate: 1
-        }
+        offsetX: 0,
+        offsetY: 0
     };
 
-       const safe = (fn, fallback = null) => {
-        try {
-            return fn();
-        } catch {
-            return fallback;
-        }
-    };
-
-    const clamp = (v, min, max) =>
-        Math.min(Math.max(v, min), max);
-
-    const lerp = (a, b, t) =>
-        a + (b - a) * t;
-
+    const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const safe = (fn, fallback = null) => { try { return fn(); } catch { return fallback; } };
 
     function turbulenceNoise(t) {
-
-        return (
-
-            Math.sin(t * 0.41) * 0.60 +
-
-            Math.sin(t * 1.17) * 0.30 +
-
-            Math.sin(t * 2.73) * 0.15 +
-
-            Math.sin(t * 5.91) * 0.08
-
-        );
+        return Math.sin(t * 0.41) * 0.5 + Math.sin(t * 1.17) * 0.25 + Math.sin(t * 2.73) * 0.15;
     }
 
-        function applyVisualEnvironment(viewer) {
-
-        if (!CONFIG.shadows.enabled) return;
-
+    function initEnvironment(viewer) {
         safe(() => {
-
             const scene = viewer.scene;
-
-            const shadowMap = scene?.shadowMap;
-
-            if (shadowMap) {
-
-                shadowMap.enabled = true;
-
-                shadowMap.size =
-                    CONFIG.shadows.size;
-
-                shadowMap.softShadows =
-                    CONFIG.shadows.softShadows;
-
-                shadowMap.darkness =
-                    CONFIG.shadows.darkness;
-
-                shadowMap.maximumDistance =
-                    CONFIG.shadows.maximumDistance;
+            if (CONFIG.shadows.enabled && scene.shadowMap) {
+                scene.shadowMap.enabled = true;
+                scene.shadowMap.size = CONFIG.shadows.size;
+                scene.shadowMap.softShadows = CONFIG.shadows.softShadows;
+                scene.shadowMap.darkness = CONFIG.shadows.darkness;
             }
-
-            const fog = scene?.fog;
-
-            if (fog) {
-
-                fog.enabled = true;
-
-                fog.density = 0.00012;
-
-                fog.minimumBrightness = 0.30;
+            if (scene.fog) {
+                scene.fog.enabled = true;
+                scene.fog.density = 0.0001;
             }
-
         });
     }
 
-    function checkLighting(viewer) {
+    function renderVisuals(viewer) {
+        const target = State.isNight ? CONFIG.visuals.night : CONFIG.visuals.day;
 
-        return safe(() => {
+        State.currentVisuals.contrast = lerp(State.currentVisuals.contrast, target.contrast, 0.1);
+        State.currentVisuals.brightness = lerp(State.currentVisuals.brightness, target.brightness, 0.1);
+        State.currentVisuals.saturate = lerp(State.currentVisuals.saturate, target.saturate, 0.1);
 
-            const scene = viewer.scene;
+        const filterStr = `contrast(${State.currentVisuals.contrast.toFixed(2)}) brightness(${State.currentVisuals.brightness.toFixed(2)}) saturate(${State.currentVisuals.saturate.toFixed(2)})`;
 
-            const camPos =
-                scene.camera?.position;
-
-            const sunPos =
-                scene.sun?.position;
-
-            const C3 =
-                window.Cesium?.Cartesian3;
-
-            if (!camPos || !sunPos || !C3)
-                return State.isNight;
-
-            const normal =
-                C3.normalize(
-                    camPos,
-                    new C3()
-                );
-
-            const sunDir =
-                C3.normalize(
-                    sunPos,
-                    new C3()
-                );
-
-            return (
-                C3.dot(normal, sunDir) < -0.05
-            );
-
-        }, State.isNight);
-    }
-
-     function renderVisuals() {
-
-        const target =
-            State.isNight
-                ? CONFIG.visuals.night
-                : CONFIG.visuals.day;
-
-        const spd =
-            CONFIG.visuals.transitionSpeed;
-
-        State.fx.contrast =
-            lerp(
-                State.fx.contrast,
-                target.contrast,
-                spd
-            );
-
-        State.fx.brightness =
-            lerp(
-                State.fx.brightness,
-                target.brightness,
-                spd
-            );
-
-        State.fx.saturate =
-            lerp(
-                State.fx.saturate,
-                target.saturate,
-                spd
-            );
-
-        const altitude =
-            window.geofs?.aircraft?.instance
-                ?.llaLocation?.[2] || 0;
-
-        const altitudeExposure =
-            clamp(
-                altitude / 12000,
-                0,
-                1
-            );
-
-        const finalBrightness =
-            State.fx.brightness +
-            altitudeExposure * 0.08;
-
-        const filterStr =
-
-            `contrast(${State.fx.contrast.toFixed(3)}) ` +
-
-            `brightness(${finalBrightness.toFixed(3)}) ` +
-
-            `saturate(${State.fx.saturate.toFixed(3)})`;
-
-        if (filterStr === State.lastFilter)
-            return;
-
-        State.lastFilter = filterStr;
-
-        if (!State.styleElement) {
-
-            State.styleElement =
-                document.createElement("style");
-
-            document.head.appendChild(
-                State.styleElement
-            );
-        }
-
-        State.styleElement.textContent = `
-
-            canvas {
-
-                filter: ${filterStr} !important;
-
-                transition: none !important;
-
-                transform: translateZ(0);
-
-                backface-visibility: hidden;
-
+        if (filterStr !== State.lastFilter) {
+            State.lastFilter = filterStr;
+            const canvas = viewer.canvas;
+            if (canvas) {
+                canvas.style.filter = filterStr;
+                canvas.style.transform = "translateZ(0)";
             }
-
-        `;
+        }
     }
 
-      function updateFlightPhysics(
-        viewer,
-        deltaTime
-    ) {
+    function updatePhysics(viewer, deltaTime) {
+        const aircraft = window.geofs?.aircraft?.instance;
+        const camera = viewer?.scene?.camera;
 
-        const aircraft =
-            window.geofs?.aircraft?.instance;
-
-        const camera =
-            viewer?.scene?.camera;
-
-        if (!aircraft || !camera)
-            return;
+        if (!aircraft || !camera) return;
 
         safe(() => {
+            const speed = aircraft.trueAirSpeed || 0;
+            const altitude = aircraft.llaLocation?.[2] || 0;
+            const grounded = aircraft.groundContact;
 
-            const speed =
-                aircraft.trueAirSpeed || 0;
+            const airDensity = Math.max(0.1, Math.exp(-altitude / 8500));
+            const dynamicPressure = 0.5 * airDensity * (speed * speed);
 
-            const altitude =
-                aircraft.llaLocation?.[2] || 0;
+            let turbulence = CONFIG.physics.baseTurbulence + (dynamicPressure * 0.0000003);
+            if (grounded) turbulence *= 0.1; 
 
-            const grounded =
-                aircraft.groundContact;
+            if (Math.random() < 0.005) State.gust = 0.5 + Math.random();
+            State.gust = lerp(State.gust, 0, deltaTime * 2.0);
+            turbulence *= (1 + State.gust);
 
-            const dt =
-                Math.min(
-                    deltaTime,
-                    0.033
-                );
-
-            const airDensity =
-                clamp(
-                    1 - (altitude / 15000),
-                    0.15,
-                    1
-                );
-
-            const machStress =
-                clamp(
-                    (speed - 80) / 250,
-                    0,
-                    1.2
-                );
-
-            let turbulence =
-
-                CONFIG.physics.baseTurbulence +
-
-                machStress *
-                airDensity *
-                0.0005;
-
-            if (grounded)
-                turbulence *= 0.15;
-
-
-            if (Math.random() < 0.003) {
-
-                State.gust =
-                    0.5 +
-                    Math.random() * 1.5;
-            }
-
-            State.gust =
-                lerp(
-                    State.gust,
-                    0,
-                    dt * 0.4
-                );
-
-            turbulence *=
-                (1 + State.gust);
-
-            const t =
-                performance.now() * 0.001;
-
-            const noiseX =
-                turbulenceNoise(t);
-
-            const noiseY =
-                turbulenceNoise(t + 17);
-
-            const noiseZ =
-                turbulenceNoise(t + 41);
+            const t = performance.now() * 0.001;
+            const noiseX = turbulenceNoise(t);
+            const noiseY = turbulenceNoise(t + 17.5);
 
             let groundEffect = 0;
-
-            const agl =
-
-                altitude -
-
-                (window.geofs?.api
-                    ?.groundElevation || 0);
-
-            if (
-                !grounded &&
-                agl > 1 &&
-                agl <
-                    CONFIG.physics
-                        .groundEffectHeight
-            ) {
-
-                const intensity =
-                    1 -
-                    (
-                        agl /
-                        CONFIG.physics
-                            .groundEffectHeight
-                    );
-
-                groundEffect =
-
-                    Math.pow(
-                        intensity,
-                        2
-                    ) *
-
-                    CONFIG.physics
-                        .groundEffectLift *
-
-                    (speed / 50);
+            const agl = altitude - (window.geofs?.api?.groundElevation || 0);
+            if (!grounded && agl > 0.5 && agl < CONFIG.physics.groundEffectHeight) {
+                const intensity = Math.pow(1 - (agl / CONFIG.physics.groundEffectHeight), 2);
+                groundEffect = intensity * CONFIG.physics.groundEffectLift * (speed / 50);
             }
 
-            const wingLoad =
-                clamp(
-                    speed / 180,
-                    0,
-                    1.5
-                );
+            let targetX = noiseX * turbulence;
+            let targetY = (noiseY * turbulence) + groundEffect;
 
-            const flex =
+            targetX = clamp(targetX, -CONFIG.physics.maxShake, CONFIG.physics.maxShake);
+            targetY = clamp(targetY, -CONFIG.physics.maxShake, CONFIG.physics.maxShake);
 
-                Math.sin(t * 8) *
+            camera.lookRight(-State.offsetX);
+            camera.lookUp(-State.offsetY);
 
-                wingLoad *
+            State.offsetX = lerp(State.offsetX, targetX, deltaTime * 15);
+            State.offsetY = lerp(State.offsetY, targetY, deltaTime * 15);
 
-                0.00005;
-
-            State.targetShakeX =
-                noiseX * turbulence;
-
-            State.targetShakeY =
-
-                noiseY *
-                turbulence +
-
-                groundEffect +
-
-                flex;
-
-            const inertia =
-                clamp(
-                    0.88 +
-                    speed *
-                    0.00008,
-                    0.88,
-                    0.97
-                );
-
-            const smoothing =
-
-                1 -
-
-                Math.pow(
-                    inertia,
-                    dt * 60
-                );
-
-            State.shakeX =
-                lerp(
-                    State.shakeX,
-                    State.targetShakeX,
-                    smoothing
-                );
-
-            State.shakeY =
-                lerp(
-                    State.shakeY,
-                    State.targetShakeY,
-                    smoothing
-                );
-
-            State.shakeX =
-                clamp(
-                    State.shakeX,
-                    -CONFIG.physics.maxShake,
-                    CONFIG.physics.maxShake
-                );
-
-            State.shakeY =
-                clamp(
-                    State.shakeY,
-                    -CONFIG.physics.maxShake,
-                    CONFIG.physics.maxShake
-                );
-
-            camera.rotateRight(
-                State.shakeX *
-                dt *
-                60
-            );
-
-            camera.rotateUp(
-                State.shakeY *
-                dt *
-                60
-            );
-
-            safe(() => {
-
-                if (
-                    typeof camera.moveForward ===
-                    "function"
-                ) {
-
-                    camera.moveForward(
-
-                        noiseZ *
-
-                        turbulence *
-
-                        3
-                    );
-                }
-
-            });
-
+            camera.lookRight(State.offsetX);
+            camera.lookUp(State.offsetY);
         });
     }
 
-     function frameLoop(now) {
-
-        const viewer =
-            window.geofs?.api?.viewer;
-
-        if (viewer) {
-
-            const deltaTime =
-
-                (now -
-                State.lastFrame) / 1000;
-
-            State.lastFrame = now;
-
-            updateFlightPhysics(
-                viewer,
-                deltaTime
-            );
-
-            if (
-
-                now -
-                State.lastVisualUpdate >
-
-                CONFIG.visualsInterval
-
-            ) {
-
-                State.lastVisualUpdate =
-                    now;
-
-                applyVisualEnvironment(
-                    viewer
-                );
-
-                State.isNight =
-                    checkLighting(
-                        viewer
-                    );
-
-                renderVisuals();
-            }
-        }
-
-        requestAnimationFrame(
-            frameLoop
-        );
-    }
-
-     function init() {
-
-        if (State.initialized)
-            return;
-
-        const viewer =
-            window.geofs?.api?.viewer;
-
-        if (!viewer)
-            return;
+    function init() {
+        if (State.initialized) return;
+        const viewer = window.geofs?.api?.viewer;
+        if (!viewer || !viewer.scene) return;
 
         State.initialized = true;
+        Object.assign(State.currentVisuals, CONFIG.visuals.day);
+        initEnvironment(viewer);
 
-        Object.assign(
-            State.fx,
-            CONFIG.visuals.day
-        );
+        viewer.scene.preRender.addEventListener(() => {
+            const now = performance.now();
+            let deltaTime = (now - State.lastTime) / 1000;
+            State.lastTime = now;
 
-        console.log(
-            "%c[GeoFS 4K Realism Pack v1.0] Loaded",
-            "color:#00ffcc;font-weight:bold;"
-        );
+            if (deltaTime > 0.1) deltaTime = 0.016;
 
-        requestAnimationFrame(
-            frameLoop
-        );
+            updatePhysics(viewer, deltaTime);
+
+            if (now - State.lastVisualUpdate > CONFIG.visualsInterval) {
+                State.lastVisualUpdate = now;
+
+                safe(() => {
+                    const camPos = viewer.scene.camera?.position;
+                    const sunPos = viewer.scene.sun?.position;
+                    const C3 = window.Cesium?.Cartesian3;
+                    if (camPos && sunPos && C3) {
+                        const normal = C3.normalize(camPos, new C3());
+                        const sunDir = C3.normalize(sunPos, new C3());
+                        State.isNight = (C3.dot(normal, sunDir) < -0.05);
+                    }
+                });
+
+                renderVisuals(viewer);
+            }
+        });
+
+        console.log("%c[GeoFS Pro Realism v3.0] Engine Stabilized and Injected", "color:#00ffcc; font-weight:bold;");
     }
 
-     const boot = setInterval(() => {
-
-        if (
-            window.geofs?.api?.viewer &&
-            window.Cesium
-        ) {
-
+    const boot = setInterval(() => {
+        if (window.geofs?.api?.viewer?.scene && window.Cesium && window.geofs.aircraft?.instance) {
             clearInterval(boot);
-
             init();
         }
-
-    }, 250);
-
+    }, 500);
 })();
