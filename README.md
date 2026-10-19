@@ -1,5 +1,5 @@
 <p align="center">
-<img width="869" height="489" alt="RTX-Realism-GeoFS" src="https://github.com/user-attachments/assets/4e2f0afa-f65e-40b9-a122-64520dd7ac7b" />
+<img width="434" height="244" alt="RTX-Realism-GeoFS" src="https://github.com/user-attachments/assets/4e2f0afa-f65e-40b9-a122-64520dd7ac7b" />
 </p>
 <p align="center">
 Elevate your GeoFS Flight experience with my RTX-Style Realism Pack, designed for Ultimate Realism and Physics
