@@ -52,19 +52,11 @@ Navigate to the Console tab and paste the RTX-Realism.js code.
 
 ### Stock Images !
 
-<img width="1919" height="1033" alt="GeoFS 4 0 Stock" src="https://github.com/user-attachments/assets/35ba4c95-3769-44db-b7c7-80db4157e77c" />
-<img width="1919" height="1035" alt="GeoFS 4 0 Stock 2" src="https://github.com/user-attachments/assets/d7b54b73-ffa4-42c1-9c8e-c0a7b5d82cbe" />
-<img width="1919" height="1035" alt="GeoFS 4 0 Stock 3" src="https://github.com/user-attachments/assets/45a2e87e-30ed-4158-aede-4a4bcf022b81" />
-<img width="1918" height="1032" alt="GeoFS 4 0 Stock 4" src="https://github.com/user-attachments/assets/21e75e94-95ae-4a39-8fc5-9f0a954fee1a" />
-<img width="1918" height="1032" alt="GeoFS 4 0 Stock 5" src="https://github.com/user-attachments/assets/481d1c52-210e-4be1-a6f8-f74b905e556a" />
+
 
 ### With RTX-Realism Pack !
 
-<img width="1918" height="1034" alt="GeoFS 4 0 RTX Realism on" src="https://github.com/user-attachments/assets/f1452ba1-9d6e-4116-8a84-22c9b4a18cb3" />
-<img width="1919" height="1034" alt="GeoFS 4 0 RTX Realism on 2" src="https://github.com/user-attachments/assets/79b3ce4e-4f79-41c9-ad91-559efcdbe7cb" />
-<img width="1919" height="1034" alt="GeoFS 4 0 RTX Realism on 3" src="https://github.com/user-attachments/assets/9ac6a8ce-50a2-4d65-b8a4-43f191d9f6ff" />
-<img width="1918" height="1032" alt="GeoFS 4 0 RTX Realism on 4" src="https://github.com/user-attachments/assets/ab2094d5-e31b-4d28-84af-78950083c389" />
-<img width="1918" height="1032" alt="GeoFS 4 0 RTX Realism on 5" src="https://github.com/user-attachments/assets/dcb94b3b-38d8-4009-b4c3-b7f6abe08ef5" />
+
 
 ## ❌ Bugs and Issues !
 
