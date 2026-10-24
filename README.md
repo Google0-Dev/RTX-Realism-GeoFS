@@ -19,7 +19,7 @@ This Add-on delivers a profoundly immersive experience by integrating advanced v
 
 ## ⚠️ Configuration
 
-size: 4096, // 2048 is highly optimized; 4096 causes VRAM lag on many GPUs
+size: 4096, // 2048 is highly optimized; 4096 Better Graphics but Heavier to load.
 
 You could always change these settings For Better Experience.           
 
