@@ -20,7 +20,7 @@
 
         shadows: {
             enabled: true,
-            size: 4096, // 2048 is highly optimized; 4096 causes VRAM lag on many GPUs
+            size: 4096, // 2048 is Highly Optimized; 4096 Better Graphics but heavy to load.
             softShadows: true,
             darkness: 0.60
         },
