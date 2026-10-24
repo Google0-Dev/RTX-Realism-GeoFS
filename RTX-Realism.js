@@ -20,7 +20,7 @@
 
         shadows: {
             enabled: true,
-            size: 4096, // 2048 is Highly Optimized; 4096 Better Graphics but heavy to load.
+            size: 4096, // 2048 is Highly Optimized; 4096 Better Graphics but Heavier to load.
             softShadows: true,
             darkness: 0.60
         },
